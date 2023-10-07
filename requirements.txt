@@ -1,0 +1,6 @@
+opencv-python
+scipy
+picamera2
+RPi.GPIO
+django
+flask
