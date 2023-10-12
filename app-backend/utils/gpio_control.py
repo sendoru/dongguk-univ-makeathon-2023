@@ -1,24 +1,32 @@
 import time
 import RPi.GPIO as GPIO
 import cv2
-import picamera2
 import numpy as np
 from PIL import Image
+import board
+import neopixel
+from liquidcrystal_i2c import LCD
 
-# Initialize the webcam. 0 indicates the default camera (usually the built-in webcam).
-# You can specify a different camera by changing the index.
-picam2 = picamera2.Picamera2()
-
-camera_config = picam2.create_still_configuration(main={"size": (1920, 1080)})
-picam2.configure(camera_config)
-picam2.start()
-
-OUT_CH = 17
-IN_CH = 27
+OUT_GPIO_CH = 22
+IN_GPIO_CH = 23
 
 # watch https://www.raspberrypi.com/documentation/computers/raspberry-pi.html for gpio pin mapping
-GPIO.setup(OUT_CH, GPIO.OUT)
-GPIO.setup(IN_CH, GPIO.IN)
+GPIO.setmode(GPIO.BCM)
+GPIO.cleanup()
+GPIO.setup(OUT_GPIO_CH, GPIO.OUT)
+GPIO.setup(IN_GPIO_CH, GPIO.IN)
+
+# https://learn.adafruit.com/neopixels-on-raspberry-pi/raspberry-pi-wiring
+pixel_pin = board.D18
+num_pixels = 4
+pixels = neopixel.NeoPixel(
+pixel_pin, num_pixels, brightness=0.2, auto_write=False, pixel_order=neopixel.RGB
+)
+
+# https://pypi.org/project/liquidcrystal-i2c-linux/
+# GROUND, 5V는 핀맵보고 알아서 꽃으면 됨
+# SDA는 3번, SCL은 5번 핀
+lcd = LCD(bus=1, addr=0x27, cols=16, rows=2)
 
 def debounce(last_status: bool):
     curr_status = bool(GPIO.input())
@@ -29,9 +37,3 @@ def debounce(last_status: bool):
 
 # When RPi gets signal from OpenRC that motor is moved to target angle
 # this callback function is called so that RPi captures image from its camera
-
-def add_image_to_list(img_list: list):
-    frame = np.array(picam2.capture_image())
-    img_list.append(frame)
-
-GPIO.add_event_detect(IN_CH, GPIO.RISING, callback=add_image_to_list)
