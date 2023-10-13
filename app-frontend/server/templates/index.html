@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <title>Camtect console</title>
+    <style>
+        h1{
+            text-align: center;
+            margin: auto;
+        }
+        body{
+            text-align: center;
+            margin: auto;
+        }
+    </style>
+
+    <script>
+        let $image = [];
+        let cur_img_index = 1;
+        let img_max = 6;
+        let img_loaded = false;
+        
+
+
+
+        function fetchImage(imgSize){
+            for(let i=1;i<=imgSize;i++){
+                $image[i] = document.createElement('img');
+
+                let imageURL = 'http://127.0.0.1:8000/image/' + i;
+
+                fetch(imageURL) //
+                .then(res => res.blob())
+                .then(blob => {
+                    console.log(blob);
+
+                    const objectURL = URL.createObjectURL(blob);
+                    console.log(objectURL);
+
+                    $image.src = objectURL;
+                
+                })
+                .catch(error => {
+                    alert("error loading images");
+                })
+            }
+            img_loaded = true;
+
+            updateIndex();
+        }
+
+        function updateIndex(){
+            document.getElementById("curImage").innerText = cur_img_index;
+            document.getElementById("img_holder").appendChild($image[cur_img_index]);
+        }
+
+        function increaceIndex(){
+            cur_img_index ++;
+            if(cur_img_index > img_max){
+                cur_img_index = img_max;
+            }
+            updateIndex();
+        }
+
+
+        function decreaceIndex(){
+            cur_img_index --;
+            if(cur_img_index < 1){
+                cur_img_index = 1;
+            }
+            updateIndex();
+        }
+
+        
+    </script>
+</head>
+<body>
+    <h1>캠텍트 콘솔</h1>
+    <div id="img_holder">img place</div>
+    <div id="img_buttons">
+        <input type="button" value="<" onclick="decreaceIndex()" />
+        <span id="curImage"></span>
+        <input type="button" value=">" onclick="increaceIndex()" />
+    </div>
+
+    <script>
+        let img_holder = document.getElementById("img_holder");
+        function activateButton(){
+            img_holder.innerText = "Loading...";
+            fetchImage(6);
+        }
+        
+    </script>
+    <br/>
+    <div>
+        <input type="button" value="작동" onclick="activateButton()" />
+    </div>
+    
+</body>
+</html>
