@@ -39,3 +39,41 @@ def get_gradient_magnitude(img: np.ndarray):
     gradient_magnitude = cv2.normalize(gradient_magnitude, None, 0, 255, cv2.NORM_MINMAX, cv2.CV_8U)
 
     return gradient_magnitude
+
+def get_laplacian(img: np.ndarray):
+    # 가우시안 필터 적용
+    blurred = cv2.GaussianBlur(img, (15, 15), 0)
+
+    laplacian = cv2.Laplacian(blurred, -1)
+
+    # 그래디언트 크기와 방향을 0~255로 스케일 조정 (선택 사항)
+    laplacian = cv2.normalize(laplacian, None, 0, 255, cv2.NORM_MINMAX, cv2.CV_8U)
+
+    return laplacian
+
+def get_min_laplacian(img: np.ndarray):
+    # 가우시안 필터 적용
+    blurred = cv2.GaussianBlur(img, (9, 9), 0)
+
+    # Sobel 필터를 사용하여 그래디언트 계산
+    gradient_x = cv2.Sobel(blurred, cv2.CV_64F, 1, 0, ksize=3)
+    laplacian_x = cv2.Sobel(blurred, cv2.CV_64F, 1, 0, ksize=3)
+    gradient_y = cv2.Sobel(blurred, cv2.CV_64F, 0, 1, ksize=3)
+    laplacian_y = cv2.Sobel(blurred, cv2.CV_64F, 0, 1, ksize=3)
+
+    laplacian_y = np.min(gradient_x**2 + gradient_y**2)
+
+    gradient_direction = np.arctan2(gradient_y, gradient_x)
+
+    # 그래디언트 크기와 방향을 0~255로 스케일 조정 (선택 사항)
+    gradient_magnitude = cv2.normalize(gradient_magnitude, None, 0, 255, cv2.NORM_MINMAX, cv2.CV_8U)
+
+    return gradient_magnitude
+
+def harris_thing(img: np.ndarray):
+    red = img[:,:,0]
+    red = np.float32(red)
+    harris = cv2.cornerHarris(red, 2, 3, 0.04)
+    gradientharris_magnitude = cv2.normalize(harris, None, 0, 255, cv2.NORM_MINMAX, cv2.CV_8U)
+
+    return harris
