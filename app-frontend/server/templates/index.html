@@ -88,6 +88,7 @@
                 window.location.reload();
             }else{
                 is_reStart = true;
+                fetch("http://192.168.0.20:1234/capture_images");
                 document.getElementById("activation_button").value = "재시작";
             }
             check_machine();
@@ -95,8 +96,7 @@
             //let result = document.URL.split(':');
             //let backURL = result[0] + ":1234/capture_images";
             //fetch(backURL);
-
-            fetch("http://192.168.0.20:1234/capture_images");
+            
         }
 
 
@@ -145,8 +145,8 @@
                     console.log(objectURL);
 
                     $image[i].src = objectURL;
-                    $image[i].width = 960;
-                    $image[i].height = 540;
+                    $image[i].width = 400;
+                    $image[i].height = 400;
                 })
                 .catch(error => {
                     alert("error loading images");
