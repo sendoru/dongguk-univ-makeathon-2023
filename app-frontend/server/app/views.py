@@ -10,7 +10,7 @@ class indexView(TemplateView):
     template_name = 'index.html'
 
 def image(res, id):
-    img_url = 'api/img/' + str(id) + '.jpg'
+    img_url = 'app/img/' + str(id) + '.jpg'
     img = open(img_url, 'rb')
     res = FileResponse(img)
 

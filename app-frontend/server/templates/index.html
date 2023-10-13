@@ -16,18 +16,38 @@
         }
     </style>
 
+    
+</head>
+<body>
+    <h1>캠텍트 콘솔</h1>
+    <div id="img_holder">img place</div>
+    <div id="img_buttons">
+        <input type="button" value="<" onclick="decreaceIndex()" />
+        <span id="curImage"></span>
+        <input type="button" value=">" onclick="increaceIndex()" />
+    </div>
+
+    <br/>
+    <div>
+        <input type="button" value="작동" onclick="fetchImage(6)" />
+    </div>
+
+    <img id="test" src="" alt="hi?"></img>
+
     <script>
-        let $image = [];
+        let $image = [0];
         let cur_img_index = 1;
         let img_max = 6;
         let img_loaded = false;
-        
-
-
 
         function fetchImage(imgSize){
-            for(let i=1;i<=imgSize;i++){
-                $image[i] = document.createElement('img');
+            if(img_loaded)  return;
+            //fetch('http://192.168.0.20:1234/capture_images');
+            
+            $image = [0];
+            for(let i=1;i<=imgSize && !img_loaded;i++){
+                $image_tmp = document.createElement('img');
+                $image.push($image_tmp);
 
                 let imageURL = 'http://127.0.0.1:8000/image/' + i;
 
@@ -39,21 +59,26 @@
                     const objectURL = URL.createObjectURL(blob);
                     console.log(objectURL);
 
-                    $image.src = objectURL;
-                
+                    $image[i].src = objectURL;
+                    $image[i].width = 400;
+                    $image[i].height = 400;
                 })
                 .catch(error => {
                     alert("error loading images");
                 })
+            
+                if(i===imgSize)  img_loaded = true;
+                
+                updateIndex();
             }
-            img_loaded = true;
-
-            updateIndex();
         }
 
         function updateIndex(){
             document.getElementById("curImage").innerText = cur_img_index;
-            document.getElementById("img_holder").appendChild($image[cur_img_index]);
+            let imgdiv = document.getElementById("img_holder");
+            imgdiv.innerHTML = "";
+            imgdiv.append($image[cur_img_index]);
+            
         }
 
         function increaceIndex(){
@@ -75,28 +100,6 @@
 
         
     </script>
-</head>
-<body>
-    <h1>캠텍트 콘솔</h1>
-    <div id="img_holder">img place</div>
-    <div id="img_buttons">
-        <input type="button" value="<" onclick="decreaceIndex()" />
-        <span id="curImage"></span>
-        <input type="button" value=">" onclick="increaceIndex()" />
-    </div>
-
-    <script>
-        let img_holder = document.getElementById("img_holder");
-        function activateButton(){
-            img_holder.innerText = "Loading...";
-            fetchImage(6);
-        }
-        
-    </script>
-    <br/>
-    <div>
-        <input type="button" value="작동" onclick="activateButton()" />
-    </div>
     
 </body>
 </html>
