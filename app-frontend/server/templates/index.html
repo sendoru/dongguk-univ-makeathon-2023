@@ -6,15 +6,52 @@
     
     <title>Camtect console</title>
     <style>
-        h1{
+        h1 {
             text-align: center;
-            margin: auto;
+            margin: 20px 0;
+            color: #333;
         }
-        body{
-            text-align: center;
-            margin: auto;
+        body {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            margin: 0;
+            background-color: #f8f8f8;
+            font-family: Arial, sans-serif;
+        }
+        #img_holder {
+            width: 400px;
+            height: 400px;
+            border: 2px solid #333;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 20px;
+            background-color: #fff;
+            border-radius: 5px;
+        }
+        #img_buttons {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+        input[type="button"] {
+            padding: 10px 20px;
+            margin: 0 10px;
+            background-color: #3366FF;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        input[type="button"]:hover {
+            background-color: #3366FF;
         }
     </style>
+
 
     
 </head>
