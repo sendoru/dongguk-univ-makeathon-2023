@@ -25,7 +25,7 @@ def main():
 
     camera_config = picam2.create_still_configuration(main={"size": (1920, 1080), "format": "RGB888"})
     picam2.configure(camera_config)
-    picam2.set_controls({"ExposureTime": 5000, "AnalogueGain": 0.1})
+    picam2.set_controls({"ExposureTime": 5000, "AnalogueGain": 0.5})
     picam2.start()
 
     s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
@@ -78,7 +78,7 @@ def capture_images():
     response_list = json.dumps(response_list)
     GPIO.output(gpio_control.OUT_GPIO_CH, GPIO.LOW)
     
-    requests.patch("http://" + ip_address + ':' + str(PORT))
+    requests.get("http://" + '192.168.0.11' + ':' + str(FRONTEND_PORT) + '/ready_from_backend')
     return make_response("Done!", 200)
 
 @app.route('/')
