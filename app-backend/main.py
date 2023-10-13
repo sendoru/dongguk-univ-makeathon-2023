@@ -22,7 +22,7 @@ PORT = 1234
 FRONTEND_PORT = 8000
 
 def main():
-
+    global ip_address 
     camera_config = picam2.create_still_configuration(main={"size": (1920, 1080), "format": "RGB888"})
     picam2.configure(camera_config)
     picam2.set_controls({"ExposureTime": 5000, "AnalogueGain": 0.5})
@@ -35,7 +35,7 @@ def main():
     gpio_control.lcd.setCursor(0, 0)
     gpio_control.lcd.print(ip_address)
     gpio_control.lcd.setCursor(0, 1)
-    gpio_control.lcd.print("PORT: " + str(PORT))
+    gpio_control.lcd.print("PORT: " + str(FRONTEND_PORT))
     gpio_control.lcd.display()
     app.run(host=ip_address, port=PORT)
 
@@ -63,7 +63,7 @@ def capture_images():
             gpio_control.pixels.show()
             return make_response("Couldn't receive signal from OpenRC board", 408)
         add_image_to_list(img_list)
-        cv2.imwrite(f"img/{i+1}.jpg", img_list[-1])
+        cv2.imwrite(f"../app-frontend/server/app/img/{i+1}.jpg", img_list[-1])
 
     gpio_control.pixels.fill((0, 0, 0))
     gpio_control.pixels.show()
@@ -78,7 +78,7 @@ def capture_images():
     response_list = json.dumps(response_list)
     GPIO.output(gpio_control.OUT_GPIO_CH, GPIO.LOW)
     
-    requests.get("http://" + '192.168.0.11' + ':' + str(FRONTEND_PORT) + '/ready_from_backend')
+    requests.get("http://" + ip_address + ':' + str(FRONTEND_PORT) + '/ready_from_backend')
     return make_response("Done!", 200)
 
 @app.route('/')
