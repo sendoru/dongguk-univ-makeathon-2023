@@ -3,6 +3,7 @@ import json
 from flask import (
     Flask, request, make_response, Blueprint, flash
 )
+import requests
 import time
 import RPi.GPIO as GPIO
 import cv2
@@ -15,8 +16,10 @@ from utils import gpio_control, image_process
 
 app = Flask(__name__)
 picam2 = picamera2.Picamera2()
+ip_address = '127.0.0.1'
 
 PORT = 1234
+FRONTEND_PORT = 8000
 
 def main():
 
@@ -34,7 +37,7 @@ def main():
     gpio_control.lcd.setCursor(0, 1)
     gpio_control.lcd.print("PORT: " + str(PORT))
     gpio_control.lcd.display()
-    app.run(host='192.168.0.20', port=PORT)
+    app.run(host=ip_address, port=PORT)
 
 @app.route('/capture_images')
 def capture_images():
@@ -60,7 +63,7 @@ def capture_images():
             gpio_control.pixels.show()
             return make_response("Couldn't receive signal from OpenRC board", 408)
         add_image_to_list(img_list)
-        cv2.imwrite(f"{i+1}.jpg", img_list[-1])
+        cv2.imwrite(f"img/{i+1}.jpg", img_list[-1])
 
     gpio_control.pixels.fill((0, 0, 0))
     gpio_control.pixels.show()
@@ -74,6 +77,8 @@ def capture_images():
 
     response_list = json.dumps(response_list)
     GPIO.output(gpio_control.OUT_GPIO_CH, GPIO.LOW)
+    
+    requests.patch("http://" + ip_address + ':' + str(PORT))
     return make_response("Done!", 200)
 
 @app.route('/')
