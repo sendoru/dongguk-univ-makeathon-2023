@@ -29,27 +29,75 @@
 
     <br/>
     <div>
-        <input type="button" value="작동" onclick="fetchImage(6)" />
+        <input id="activation_button" type="button" value="작동" onclick="activate()" />
     </div>
 
-    <img id="test" src="" alt="hi?"></img>
 
     <script>
         let $image = [0];
         let cur_img_index = 1;
         let img_max = 6;
         let img_loaded = false;
+        let is_machine_ready = false;
+        let is_reStart = false;
+
+        // page loaded
+        
+        fetch(document.URL + 'page_loaded');
+        
+        function activate(){
+            
+            if(is_reStart == true){
+                window.location.reload();
+            }else{
+                is_reStart = true;
+                document.getElementById("activation_button").value = "재시작";
+            }
+            check_machine();
+            // backend 에 fetch 요청 -> 작동신호 보내기.
+            //let result = document.URL.split(':');
+            //let backURL = result[0] + ":1234/capture_images";
+            //fetch(backURL);
+
+            fetch("http://192.168.0.20:1234/capture_images");
+        }
+
+
+        function check_machine(){
+            if(is_machine_ready){
+                return;
+            }else{
+                let checkURL = document.URL + 'is_machine_ready';
+                fetch(checkURL)
+                .then(res => res.text())
+                .then(text => {
+                    if(text == "yes"){
+                        is_machine_ready = true;
+                        fetchImage(6);
+                    }else{
+                        setTimeout(() => {
+                            is_machine_ready = false;
+                            check_machine();
+                        }, 1000);
+                    }
+                })
+                
+            }
+        }
 
         function fetchImage(imgSize){
-            if(img_loaded)  return;
-            //fetch('http://192.168.0.20:1234/capture_images');
-            
+            console.log(is_machine_ready + ", " + img_loaded);
+            if(is_machine_ready == false)  return null;
+
+            if(img_loaded == true)  return null;
+
+            console.log("hi?");
             $image = [0];
-            for(let i=1;i<=imgSize && !img_loaded;i++){
+            for(let i=1;i<=imgSize && ~img_loaded;i++){
                 $image_tmp = document.createElement('img');
                 $image.push($image_tmp);
 
-                let imageURL = 'http://127.0.0.1:8000/image/' + i;
+                let imageURL = document.URL + 'image/' + i;
 
                 fetch(imageURL) //
                 .then(res => res.blob())
@@ -88,7 +136,6 @@
             }
             updateIndex();
         }
-
 
         function decreaceIndex(){
             cur_img_index --;
