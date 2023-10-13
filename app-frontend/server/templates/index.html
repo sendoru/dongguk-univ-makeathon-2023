@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <title>Camtect console</title>
+    <style>
+        h1{
+            text-align: center;
+            margin: auto;
+        }
+        body{
+            text-align: center;
+            margin: auto;
+        }
+    </style>
+
+    
+</head>
+<body>
+    <h1>캠텍트 콘솔</h1>
+    <div id="img_holder">img place</div>
+    <div id="img_buttons">
+        <input type="button" value="<" onclick="decreaceIndex()" />
+        <span id="curImage"></span>
+        <input type="button" value=">" onclick="increaceIndex()" />
+    </div>
+
+    <br/>
+    <div>
+        <input id="activation_button" type="button" value="작동" onclick="activate()" />
+    </div>
+
+
+    <script>
+        let $image = [0];
+        let cur_img_index = 1;
+        let img_max = 6;
+        let img_loaded = false;
+        let is_machine_ready = false;
+        let is_reStart = false;
+
+        // page loaded
+        
+        fetch(document.URL + 'page_loaded');
+        
+        function activate(){
+            
+            if(is_reStart == true){
+                window.location.reload();
+            }else{
+                is_reStart = true;
+                document.getElementById("activation_button").value = "재시작";
+            }
+            check_machine();
+            // backend 에 fetch 요청 -> 작동신호 보내기.
+            //let result = document.URL.split(':');
+            //let backURL = result[0] + ":1234/capture_images";
+            //fetch(backURL);
+
+            fetch("http://192.168.0.20:1234/capture_images");
+        }
+
+
+        function check_machine(){
+            if(is_machine_ready){
+                return;
+            }else{
+                let checkURL = document.URL + 'is_machine_ready';
+                fetch(checkURL)
+                .then(res => res.text())
+                .then(text => {
+                    if(text == "yes"){
+                        is_machine_ready = true;
+                        fetchImage(6);
+                    }else{
+                        setTimeout(() => {
+                            is_machine_ready = false;
+                            check_machine();
+                        }, 1000);
+                    }
+                })
+                
+            }
+        }
+
+        function fetchImage(imgSize){
+            console.log(is_machine_ready + ", " + img_loaded);
+            if(is_machine_ready == false)  return null;
+
+            if(img_loaded == true)  return null;
+
+            console.log("hi?");
+            $image = [0];
+            for(let i=1;i<=imgSize && ~img_loaded;i++){
+                $image_tmp = document.createElement('img');
+                $image.push($image_tmp);
+
+                let imageURL = document.URL + 'image/' + i;
+
+                fetch(imageURL) //
+                .then(res => res.blob())
+                .then(blob => {
+                    console.log(blob);
+
+                    const objectURL = URL.createObjectURL(blob);
+                    console.log(objectURL);
+
+                    $image[i].src = objectURL;
+                    $image[i].width = 400;
+                    $image[i].height = 400;
+                })
+                .catch(error => {
+                    alert("error loading images");
+                })
+            
+                if(i===imgSize)  img_loaded = true;
+                
+                updateIndex();
+            }
+        }
+
+        function updateIndex(){
+            document.getElementById("curImage").innerText = cur_img_index;
+            let imgdiv = document.getElementById("img_holder");
+            imgdiv.innerHTML = "";
+            imgdiv.append($image[cur_img_index]);
+            
+        }
+
+        function increaceIndex(){
+            cur_img_index ++;
+            if(cur_img_index > img_max){
+                cur_img_index = img_max;
+            }
+            updateIndex();
+        }
+
+        function decreaceIndex(){
+            cur_img_index --;
+            if(cur_img_index < 1){
+                cur_img_index = 1;
+            }
+            updateIndex();
+        }
+
+        
+    </script>
+    
+</body>
+</html>
